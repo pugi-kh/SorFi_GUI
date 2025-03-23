@@ -4,6 +4,7 @@
 
 from tkinter import *
 import tkinter.messagebox as msgbox
+import tkinter.filedialog as filedialog
 import os
 import shutil
 from SorFi_run import *
@@ -11,7 +12,7 @@ from SorFi_run import *
 root = Tk() # root.mainloop() 사이에 작성
 
 root.title("SorFi_Files Assorting Program")
-root.iconbitmap('./resource/SorFi_icon_2.ico')
+root.iconbitmap('./resource/icon/SorFi_icon_2.ico')
 appWidth = 480
 appHeight = 640
 widthPosition = (root.winfo_screenwidth()/2) - (appWidth/2)
@@ -28,9 +29,9 @@ class SourceFrame: # 동작할 폴더 경로 입력 프레임
         sourceFrame.pack(fill="x", padx=10, pady=10, ipady=4)
 
         # 저장경로 입력 Entry
-        sourceEntry = StringVar()
-        sourceEntry.set("C:\\")
-        self.path = Entry(sourceFrame, textvariable=sourceEntry) # 한줄로만 입력하는 텍스트박스 Entry
+        self.sourcePath = StringVar()
+        self.sourcePath.set("C:\\")
+        self.path = Entry(sourceFrame, textvariable=self.sourcePath) # 한줄로만 입력하는 텍스트박스 Entry
         self.path.pack(side = "left", fill = "x", expand=True, ipady=4, padx=5, pady=10) 
         # 수평으로 길게 fill, i(nner)pady높이 변경
         # Entry가 좌측으로 정렬되어 가로로 길게 채워지고, 내부에 y축 방향으로 4 높이 여백 생성
@@ -41,8 +42,13 @@ class SourceFrame: # 동작할 폴더 경로 입력 프레임
         btn.pack(side = "right", padx=10, pady=10) 
         # 경로를 입력하는 Entry 우측에 찾아보기 버튼 추가
         
-    def find_dir(self):
+    def find_dir(self): # 폴더검색창
         print("find dir")
+        dirPath = filedialog.askdirectory(initialdir = "C:\\", title="폴더를 선택해주세요")
+        if(dirPath==""): pass
+        elif(os.path.isdir(dirPath)):
+            self.sourcePath.set(dirPath)
+
         
 class OptionFrame: # 폴더명 생성 방식 옵션
     def __init__(self, int):
@@ -108,7 +114,7 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
         deleteBtn.pack(side="top", padx=10, pady=5)
             # 자리수 확인 버튼
         chkDigitBtn = Button(self.listFrame_R, text="자리수 확인", width=10, 
-                             command=lambda : CheckDigit(), font=customFont1)
+                             command=lambda : CheckDigitExample(), font=customFont1)
         chkDigitBtn.pack(side="top", padx=10, pady=5)
             # 리스트 초기화 버튼
         resetBtn = Button(self.listFrame_R, text="목록 초기화", width=10, 
@@ -183,11 +189,11 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
     def resetList(self): # 리스트박스 내 폴더명 전체 삭제
         self.folderList.delete(0, END)
         
-class CheckDigit: # 파일명 입력하여 문자열 자리수 확인
+class CheckDigitExample: # 파일명 입력하여 문자열 자리수 확인
     def __init__(self):
         self.window = Tk()
         self.window.title("SorFi_Check Digit")
-        self.window.iconbitmap('./resource/SorFi_icon_2.ico')
+        self.window.iconbitmap('./resource/icon/SorFi_icon_2.ico')
         self.appWidth = 640
         self.appHeight = 180
         self.widthPosition = (self.window.winfo_screenwidth()/2) - (self.appWidth/2)
@@ -213,7 +219,7 @@ class CheckDigit: # 파일명 입력하여 문자열 자리수 확인
         self.window.mainloop()
         
     def check(self):
-        print(self.fileName.get())
+        print("파일명 자리수 확인 >>", self.fileName.get())
         for wiget in self.line3.winfo_children():
             wiget.destroy()
         txtList = [x for x in self.fileName.get()]
@@ -221,7 +227,6 @@ class CheckDigit: # 파일명 입력하여 문자열 자리수 확인
         result.pack()
         
         index = [format(i,"02") for i in range(1, len(self.fileName.get())+1)]
-        print(index)
         resultIdx = Label(self.line3, text=index, font=("Courier New", 10, "bold"))
         resultIdx.pack()
         
@@ -302,7 +307,7 @@ class RunFrame: # 설정 저장 및 실행 (SorFi_run에 메서드 작성)
     run_frame_R = Frame(run_frame)
     run_frame_R.pack(side="right", fill="both", expand=True)
     # 실행
-    btn_run = Button(run_frame_R, text="실행", width=10, height=2, font=customFont2, background="gray80")
+    btn_run = Button(run_frame_R, text="실 행", width=10, height=2, font=customFont2, background="gray80")
     btn_run.pack(side="right", padx=5, pady=10)
 
 
