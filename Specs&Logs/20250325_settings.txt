@@ -1,0 +1,32 @@
+[작업 내용]
+- 설정값 저장 & 불러오기
+    tkinter.filedialog 를 활용하여 윈도우 탐색기에서 파일 저장 및 불러오기 구현
+    json 파일로 변수들 저장 후 불러오기 작업
+
+
+[미완료 작업]
+- 문자열 위치 확인 체크했을 때, 우측의 Label과 Entry 활성화하는 것
+    -> config(state="normal") 활용하여 리팩토링
+- 메인 메서드 Run, Undo 작성
+    Run : MerFi 참고
+
+        for i in range(len(folder_list)): # 폴더 개수만큼 수행
+        if not os.path.exists(user_path + folder_list[i]): # 생성하려는 폴더명이 기존에 없을 경우
+            os.makedirs(user_path + folder_list[i]) # 폴더 생성
+         
+        li = [s for s in file_list if folder_list[i] in s] 
+        # 문자를 포함하기만 하면
+        li.sort() # 문자를 포함하는 리스트를 만든 후
+
+        for fname in li:
+            current_path = (user_path + fname) # 리스트의 첫번째 파일 현재 주소
+            new_path = (user_path + folder_list[i] + '/' + fname) # 이동할 파일의 주소
+            shutil.move(current_path, new_path)
+
+        file_list = [x for x in file_list if x not in li] # 이동한 파일은 리스트에서 제외
+    
+    Undo : Run 실행시 [이동할 예정인 파일], [기존에 존재하는 폴더], [새로 생성할 폴더] 리스트를 생성
+        파일을 옮기기 전 메인 실행 위치에서 이동할 예정인 파일들을 리스트에 저장
+        생성한 폴더 리스트를 참고하여 각 폴더 내부에서
+        이번에 이동한 파일들만을 선택해서 상위폴더로 이동
+        이후 비어있는 폴더는 삭제 (기존에도 빈 폴더가 있었다면 유지)
