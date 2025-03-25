@@ -31,20 +31,18 @@ class SourceFrame: # 동작할 폴더 경로 입력 프레임
         # 저장경로 입력 Entry
         self.sourcePath = StringVar()
         self.sourcePath.set("%UserProfile%\desktop")
-        path = Entry(sourceFrame, textvariable=self.sourcePath) # 한줄로만 입력하는 텍스트박스 Entry
+        path = Entry(sourceFrame, textvariable=self.sourcePath)
         path.pack(side = "left", fill = "x", expand=True, ipady=4, padx=5, pady=10) 
-        # 수평으로 길게 fill, i(nner)pady높이 변경
-        # Entry가 좌측으로 정렬되어 가로로 길게 채워지고, 내부에 y축 방향으로 4 높이 여백 생성
-        # 외부로 10 여백 생성
 
         # 위치 찾아보기 Button
-        btn = Button(sourceFrame, text = "찾아보기", width = 10, command=self.find_dir, font=customFont1)
+        btn = Button(sourceFrame, text = "찾아보기", width = 10, 
+                     command=self.find_dir, font=customFont1)
         btn.pack(side = "right", padx=10, pady=10) 
-        # 경로를 입력하는 Entry 우측에 찾아보기 버튼 추가
         
     def find_dir(self): # 폴더검색창
         # print("find dir")
-        dirPath = filedialog.askdirectory(initialdir = self.sourcePath.get(), title="폴더를 선택해주세요")
+        dirPath = filedialog.askdirectory(initialdir = self.sourcePath.get(), 
+                                          title="폴더를 선택해주세요")
         if(dirPath==""): pass
         elif(os.path.isdir(dirPath)):
             self.sourcePath.set(dirPath)
@@ -54,7 +52,9 @@ class OptionFrame: # 폴더명 생성 방식 옵션
         optFrame = LabelFrame(root, text="옵션")
         optFrame.pack(fill="x", padx=10, pady=10, ipady=5)
         
+        # 옵션 변수
         self.optVar = IntVar()
+        # 옵션 선택
         optButton1 = Radiobutton(optFrame, text="폴더명 직접 입력", 
                                     value=1, variable=self.optVar, 
                                     command=self.folderOptions, 
@@ -73,8 +73,8 @@ class OptionFrame: # 폴더명 생성 방식 옵션
         optButton2.pack(side="left", padx=(50,0))
         
     def folderOptions(self):
-        # print("< 폴더명 생성 옵션 변경 >") 
-        folderNameFrame.option(self.optVar.get()) # 프레임이 달라서 FolderNameFrame 클래스에서 실행
+        # 프레임이 달라서 FolderNameFrame 클래스에서 실행
+        folderNameFrame.option(self.optVar.get()) 
 
 class FolderNameFrame: # 생성할 폴더명 리스트박스
     # 인터페이스 생성
@@ -129,24 +129,28 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
     def option(self, var): # 폴더명 작성 방식에 따른 gui 구성
         for wiget in self.addFolderFrame.winfo_children():
             wiget.destroy()
+            
         if (var == 1):
             # print("폴더명 직접 입력 방식")
                 # 폴더명 Entry (상단-좌)
             self.folderNameEntry = Entry(self.addFolderFrame)
             self.folderNameEntry.pack(side="left", fill="x", expand=True, ipady=4, padx=5, pady=10)
+            
+            # Enter키 이벤트 바인딩
+            self.folderNameEntry.bind("<Return>", self.addFolderName)
+            
                 # 추가 Button (상단-우)
             folderNameBtn = Button(self.addFolderFrame, text = "추가", width = 10, 
                                    command=self.addFolderName, font=customFont1)
             folderNameBtn.pack(side="right", padx=10, pady=10)
-            
         elif (var == 2):
             # print("자리수 지정해서 폴더명 생성 방식")
-                # 폴더명 Entry (상단-좌)
+                # 폴더명 시작번호 idx
             startNumTxt = Label(self.addFolderFrame, text="시작 위치 : ", font=customFont1)
             startNumTxt.pack(side="left", padx=(5,0), pady=10)
             self.startNum = Entry(self.addFolderFrame, width=5)
             self.startNum.pack(side="left", fill="x", expand=True, ipady=4)
-            
+                # 폴더명 끝번호 idx
             endNumTxt = Label(self.addFolderFrame, text="끝 위치 : ", font=customFont1)
             endNumTxt.pack(side="left", padx=(5,0), pady=10)
             self.endNum = Entry(self.addFolderFrame, width=5)
@@ -161,22 +165,29 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
                                    command=self.createFolderNameBtn, font=customFont1)
             folderNameBtn.pack(side="right", padx=10, pady=10)
         
-    def createFolderNameBtn(self): # 입력받은 번호를 idx번호로 변경
+    def createFolderNameBtn(self): # 입력받은 idx를 기반으로 폴더명 생성
+        
+        userPath = sourceFrame.sourcePath.get()
+        print(userPath)
         try:
-            start_idx = int(self.startNum.get())
-            end_idx = int(self.endNum.get())
-            if(start_idx <=0 or end_idx <=0 or start_idx > end_idx): # 양의정수가 아니거나 시작인덱스가 클 경우 오류 발생
+            start_idx = int(self.startNum.get().strip())
+            end_idx = int(self.endNum.get().strip())
+            
+            # 양의정수가 아니거나 시작인덱스가 클 경우 오류 발생
+            if(start_idx <=0 or start_idx > end_idx): 
                 raise Exception
-            self.createFolderName(start_idx, end_idx)
         except:
             msgbox.showwarning("잘못된 입력", "\"시작위치\" 혹은 \"끝 위치\"에 올바른 값을 입력해주세요.\n(양의 정수만 입력 가능)")
             
-    def createFolderName(self, sIdx, eIdx): # idx번호를 기반으로 폴더명 추출 실행
-        # print(f"파일명에서 추출 >> 시작 idx : {sIdx}, 끝 idx : {eIdx}")
-        pass
+        temp_file = os.listdir(userPath)
+        fileList = [file for file in temp_file if os.path.isfile(userPath+"\\"+file)]
+        folderSet = set()
+        for file in fileList:
+            folderSet.add(file[start_idx-1:end_idx])
+        for x in folderSet:
+            folderNameFrame.folderList.insert(END, x)
         
     def addFolderName(self): # 폴더명 직접 작성하여 추가
-        # print("add folder name >> ", self.folderNameEntry.get())
         # 항목이 없을때만 추가
         if(self.folderNameEntry.get() not in self.folderList.get(0, END) and self.folderNameEntry.get() != ""):
             self.folderList.insert(END, self.folderNameEntry.get())
@@ -281,65 +292,17 @@ class CheckDigitOption: # 문자열 위치 확인 여부
             self.xstartIdx.pack(side = "left", ipady=4)
             self.xchkIdxTxt2.pack(side="left")
             
+    # 문자열 위치 확인, 시작인덱스 변수에 저장
     def setIdx(self, idx):
         self.startIdxVar.set(idx)
         self.chkIdx()
             
 """메인 메서드 정의"""
-def run():
-    print("run!")
-    pass
 
-def undo():
-    print("undo!")
-    pass
         
-def getSettings():
-    # json 파일 불러와서 각각의 변수에 set() 진행
-    settingFile = filedialog.askopenfilename(initialdir = sourceFrame.sourcePath.get(), title="설정 불러오기",
-                                    filetypes=(("JSON", "*.json"), ("all files", "*.*")))
-    print(settingFile)
-    with open(settingFile, "r", encoding="UTF-8") as loadFile:
-        json_data = json.load(loadFile)
-    # print(json.dumps(json_data, indent=4)) # json 파일 내용 출력
-    
-    print(json_data["Run_Path"])
-    print(json_data["Folder_name_List"])
-    print(json_data["Digit_Check_opt"])
-    print(json_data["Digit_Start_idx"])
-    
-    sourceFrame.sourcePath.set(json_data["Run_Path"])
-    folderNameFrame.folderList.delete(0, END)
-    for list_data in json_data["Folder_name_List"]:
-        folderNameFrame.folderList.insert(END, list_data)
-    chkDigit.chkVar.set(json_data["Digit_Check_opt"])
-    # 문자열 확인 시작 인덱스 설정이 안됨
-    chkDigit.setIdx(json_data["Digit_Start_idx"])
-
-def setSettings(): # 설정 저장하기
-    settingFile = filedialog.asksaveasfilename(title="설정 저장",
-                                        filetypes=(("JSON", "*.json"), ("all files", "*.*")))
-    # settingdir = settingFile[:int(settingFile.rfind('/'))] # 저장될 폴더 경로
-    if(settingFile.endswith(".json")): pass
-    elif(settingFile==""): pass
-    else: settingFile = settingFile + ".json"
-    
-    json_data = {}
-    json_data["Run_Path"] = sourceFrame.sourcePath.get()
-    json_data["Folder_name_List"] = folderNameFrame.folderList.get(0, END)
-    json_data["Digit_Check_opt"] = chkDigit.chkVar.get()
-    json_data["Digit_Start_idx"] = chkDigit.startIdxEntry.get()
-    
-    print("설정파일 저장 경로 :", settingFile)
-    with open(settingFile, "w", encoding="UTF-8") as saveFile:
-        json.dump(json_data, saveFile, indent=4)
         
-    # print("소스폴더 경로 :", sourceFrame.sourcePath.get())
-    # print("폴더명 리스트 :", folderNameFrame.folderList.get(0, END))
-    # print("문자열 위치 확인 여부 :", chkDigit.chkVar.get())
-    # print("시작위치 :", chkDigit.startIdxEntry.get())
-        
-class RunFrame: # 설정 저장 및 실행 (SorFi_run에 메서드 작성)
+# 설정 저장 및 실행 (SorFi_run에 메서드 작성)
+class RunFrame: 
     def __init__(self):
         
         run_frame = Frame(root)
@@ -353,18 +316,18 @@ class RunFrame: # 설정 저장 및 실행 (SorFi_run에 메서드 작성)
         run_frame_L2.pack(side="left", fill="both")
         # 설정 저장
         btn_save_opt = Button(run_frame_L2, text="설정 저장", font=customFont1,
-                              command=setSettings)
+                              command=self.setSettings)
         btn_save_opt.pack(side="bottom", padx=5, pady=10, fill="both")
         # 설정 불러오기
         btn_read_opt = Button(run_frame_L2, text="설정 불러오기", font=customFont1,
-                              command=getSettings)
+                              command=self.getSettings)
         btn_read_opt.pack(side="bottom", padx=5, pady=0, fill="both")
 
         # 되돌리기
         run_frame_L3 = Frame(run_frame_L) # 되돌리기 프레임
         run_frame_L3.pack(side="left", fill="both", expand=True)
         btn_revert = Button(run_frame_L3, text="되돌리기", width=10, font=customFont1,
-                            command=undo)
+                            command=self.undo)
         btn_revert.pack(side="bottom", padx=5, pady=10, fill="both")
 
 
@@ -375,17 +338,100 @@ class RunFrame: # 설정 저장 및 실행 (SorFi_run에 메서드 작성)
         run_frame_RB.pack(side="right", fill="both", expand=True)
         # 실행
         btn_run = Button(run_frame_RB, text="실 행", width=10, height=2, font=customFont2, background="gray80",
-                         command=run)
+                         command=self.run)
         btn_run.pack(side="bottom", padx=5, pady=10)
+        
+        
+        self.userPath = ""
+        self.folders = list()
+        self.fileList = list()
+        self.basefiles = list()
+
+    def run(self):
+        self.userPath = sourceFrame.sourcePath.get()
+        
+        # 이동할 파일
+        temp_file = os.listdir(self.userPath)
+        self.fileList = [file for file in temp_file if os.path.isfile(self.userPath+"\\"+file)]
+        self.basefiles = self.fileList
+        
+        # 리스트박스 값 가져오기
+        self.folders = list(folderNameFrame.folderList.get(0, END))
+        
+        # 폴더 생성
+        for folderName in self.folders:
+            # 생성하려는 폴더명이 기존에 없을 경우 폴더 생성
+            if not os.path.exists(self.userPath + "\\" + folderName): 
+                os.makedirs(self.userPath + "\\" + folderName)
+            
+        # # 옵션에 따라 case 분리
+        # # 문자열 위치 확인
+        # if chkDigit.chkVar.get()==1:
+        #     pass
+        # # 문자열 위치 확인 안함
+        # elif chkDigit.chkVar.get()==0:
+        #     pass
+        #     # 파일명에 해당 폴더명과 동일한 문자열이 존재할 경우 리스트에 추가
+        #     li = [x for x in fileList if folderName in x]
+
+        #     for file in li:
+        #         current_path = (userPath + file) # 리스트의 첫번째 파일 현재 주소
+        #         new_path = (userPath + folderName + '/' + file) # 이동할 파일의 주소
+        #         shutil.move(current_path, new_path)
+
+        #     fileList = [x for x in fileList if x not in li] # 이동한 파일은 리스트에서 제외
+
+    def undo(self):
+        print("undo!")
+        print(self.basefiles)
+        pass
+            
+    def getSettings(self):
+        # json 파일 불러와서 각각의 변수에 set() 진행
+        settingFile = filedialog.askopenfilename(initialdir = sourceFrame.sourcePath.get(), title="설정 불러오기",
+                                        filetypes=(("JSON", "*.json"), ("all files", "*.*")))
+        # print(settingFile)
+        with open(settingFile, "r", encoding="UTF-8") as loadFile:
+            json_data = json.load(loadFile)
+        # print(json.dumps(json_data, indent=4)) # json 파일 내용 출력
+        
+        sourceFrame.sourcePath.set(json_data["Run_Path"])
+        folderNameFrame.folderList.delete(0, END)
+        for list_data in json_data["Folder_name_List"]:
+            folderNameFrame.folderList.insert(END, list_data)
+        chkDigit.chkVar.set(json_data["Digit_Check_opt"])
+        # 문자열 확인 시작 인덱스 설정이 안됨
+        chkDigit.setIdx(json_data["Digit_Start_idx"])
+
+    def setSettings(self): # 설정 저장하기
+        settingFile = filedialog.asksaveasfilename(title="설정 저장",
+                                            filetypes=(("JSON", "*.json"), ("all files", "*.*")))
+        # settingdir = settingFile[:int(settingFile.rfind('/'))] # 저장될 폴더 경로
+        if(settingFile.endswith(".json")): pass
+        elif(settingFile==""): pass
+        else: settingFile = settingFile + ".json"
+        
+        json_data = {}
+        json_data["Run_Path"] = sourceFrame.sourcePath.get()
+        json_data["Folder_name_List"] = folderNameFrame.folderList.get(0, END)
+        json_data["Digit_Check_opt"] = chkDigit.chkVar.get()
+        json_data["Digit_Start_idx"] = chkDigit.startIdxEntry.get()
+        
+        # print("설정파일 저장 경로 :", settingFile)
+        with open(settingFile, "w", encoding="UTF-8") as saveFile:
+            json.dump(json_data, saveFile, indent=4)
 
 
 """인터페이스 정의"""
-sourceFrame = SourceFrame() # 파일 경로 프레임 생성
+# 파일 경로 프레임 생성
+sourceFrame = SourceFrame() 
 # print(f"파일 경로 : {sourceFrame.path.get()}")
-optFrame = OptionFrame(1) # 옵션 프레임 생성
+# 옵션 프레임 생성
+optFrame = OptionFrame(1) 
 folderNameFrame = FolderNameFrame(optFrame.optVar.get())
 runFrame = RunFrame()
-chkDigit = CheckDigitOption() # 문자열 자리수 확인 옵션
+# 문자열 자리수 확인 옵션
+chkDigit = CheckDigitOption() 
 
 
 
