@@ -311,28 +311,28 @@ class RunFrame:
 
 
         run_frame_L = Frame(run_frame)
-        run_frame_L.pack(side="left", fill="both")
+        run_frame_L.pack(side="left", fill="both", expand=True)
         
-        run_frame_L2 = Frame(run_frame_L) # 설정저장 및 불러오기 프레임
-        run_frame_L2.pack(side="left", fill="both")
+        run_frame_LT = Frame(run_frame_L) # 설정저장 및 불러오기 프레임
+        run_frame_LT.pack(side="bottom", fill="x", ipady=10)
         # 설정 저장
-        btn_save_opt = Button(run_frame_L2, text="설정 저장", font=customFont1,
-                              command=self.setSettings)
-        btn_save_opt.pack(side="bottom", padx=5, pady=10, fill="both")
+        btn_save_opt = Button(run_frame_LT, text="설정 저장", font=customFont1,
+                              command=self.setSettings, width=10)
+        btn_save_opt.pack(side="left", padx=5, pady=0)
         # 설정 불러오기
-        btn_read_opt = Button(run_frame_L2, text="설정 불러오기", font=customFont1,
-                              command=self.getSettings)
-        btn_read_opt.pack(side="bottom", padx=5, pady=0, fill="both")
+        btn_read_opt = Button(run_frame_LT, text="설정 불러오기", font=customFont1,
+                              command=self.getSettings, width=10)
+        btn_read_opt.pack(side="left", padx=5, pady=0)
 
         # 되돌리기
-        run_frame_L3 = Frame(run_frame_L) # 되돌리기 프레임
-        run_frame_L3.pack(side="right", fill="both")
-        btn_revert = Button(run_frame_L3, text="되돌리기", width=10, font=customFont1,
+        run_frame_LB = Frame(run_frame_L) # 되돌리기 프레임
+        run_frame_LB.pack(side="bottom", fill="x")
+        btn_revert = Button(run_frame_LB, text="되돌리기", width=10, font=customFont1,
                             command=self.undo)
-        btn_revert.pack(side="bottom", padx=5, pady=10, fill="both")
+        btn_revert.pack(side="left", padx=5, pady=0)
         
-        # txt_revert = Label(run_frame_L3, text="※ 되돌리기는 실행 직후에만 가능합니다!!")
-        # txt_revert.pack(side="bottom")
+        txt_revert = Label(run_frame_LB, fg="gray", text="※ 되돌리기는 실행 직후에만 가능합니다!!")
+        txt_revert.pack(side="left")
 
 
         # 실행버튼 프레임
@@ -344,6 +344,8 @@ class RunFrame:
         btn_run = Button(run_frame_RB, text="실 행", width=10, height=2, font=customFont2, background="gray80",
                          command=self.run)
         btn_run.pack(side="bottom", padx=5, pady=10)
+        
+
         
         
         self.userPath = ""
