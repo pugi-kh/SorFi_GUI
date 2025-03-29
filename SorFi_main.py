@@ -26,11 +26,11 @@ customFont2 = ("", 14, "bold")
 class SourceFrame: # 동작할 폴더 경로 입력 프레임
     def __init__(self):
         sourceFrame = LabelFrame(root, text="파일 경로")
-        sourceFrame.pack(fill="x", padx=10, pady=10, ipady=4)
+        sourceFrame.pack(side="top", fill="x", padx=10, pady=10, ipady=4)
 
         # 저장경로 입력 Entry
         self.sourcePath = StringVar()
-        self.sourcePath.set("%UserProfile%\desktop")
+        self.sourcePath.set("")
         path = Entry(sourceFrame, textvariable=self.sourcePath)
         path.pack(side = "left", fill = "x", expand=True, ipady=4, padx=5, pady=10) 
 
@@ -50,7 +50,7 @@ class SourceFrame: # 동작할 폴더 경로 입력 프레임
 class OptionFrame: # 폴더명 생성 방식 옵션
     def __init__(self, int):
         optFrame = LabelFrame(root, text="옵션")
-        optFrame.pack(fill="x", padx=10, pady=10, ipady=5)
+        optFrame.pack(side="top", fill="x", padx=10, pady=10, ipady=5)
         
         # 옵션 변수
         self.optVar = IntVar()
@@ -81,7 +81,7 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
     def __init__(self, var): 
     # 폴더명 메인 프레임
         self.frame = LabelFrame(root, text="폴더명") 
-        self.frame.pack(fill="both", expand=True, padx=10, pady=10, ipady=4)
+        self.frame.pack(side="top" ,fill="both", expand=True, padx=10, pady=10, ipady=4)
         
         # 폴더명 작성방식 프레임 -> 내용은 self.option 에서 작성
         self.addFolderFrame = Frame(self.frame) 
@@ -168,7 +168,6 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
     def createFolderNameBtn(self): # 입력받은 idx를 기반으로 폴더명 생성
         
         userPath = sourceFrame.sourcePath.get()
-        print(userPath)
         try:
             start_idx = int(self.startNum.get().strip())
             end_idx = int(self.endNum.get().strip())
@@ -180,12 +179,13 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
             msgbox.showwarning("잘못된 입력", "\"시작위치\" 혹은 \"끝 위치\"에 올바른 값을 입력해주세요.\n(양의 정수만 입력 가능)")
             
         temp_file = os.listdir(userPath)
-        fileList = [file for file in temp_file if os.path.isfile(userPath+"\\"+file)]
+        fileList = [file for file in temp_file if os.path.isfile(userPath+"/"+file)]
         folderSet = set()
         for file in fileList:
-            folderSet.add(file[start_idx-1:end_idx])
-        for x in folderSet:
-            folderNameFrame.folderList.insert(END, x)
+            folderSet.add(file[start_idx-1:end_idx].replace(" ", "_"))
+        for new_folder in folderSet:
+            if new_folder not in list(self.folderList.get(0, END)):
+                folderNameFrame.folderList.insert(END, new_folder)
         
     def addFolderName(self): # 폴더명 직접 작성하여 추가
         # 항목이 없을때만 추가
@@ -193,9 +193,15 @@ class FolderNameFrame: # 생성할 폴더명 리스트박스
             self.folderList.insert(END, self.folderNameEntry.get())
         
     def deleteSelections(self): # 폴더명 선택 삭제
-        index = self.folderList.curselection()
+        index = list(self.folderList.curselection())
+        index.sort(reverse=True)
         for i in index:
             self.folderList.delete(i)
+        '''
+        인덱스 순서대로 삭제를 하니 두개 이상 선택했을 경우 앞에서 요소가 삭제되어 기존에 
+        선택한 인덱스와 삭제할 인덱스가 맞지 않는 상황이 생겨 의도와 다른 요소가 삭제됨
+        인덱스 역순으로 정렬해서 삭제 진행하면 문제 없을 것으로 생각됨
+        '''
         
     def resetList(self): # 리스트박스 내 폴더명 전체 삭제
         self.folderList.delete(0, END)
@@ -245,7 +251,7 @@ class CheckDigitOption: # 문자열 위치 확인 여부
     def __init__(self):
     # 메인 프레임
         self.frame = LabelFrame(root, text="문자열 위치 확인")
-        self.frame.pack(side="bottom", fill="x", padx=10, pady=10, ipady=0)
+        self.frame.pack(side="top", fill="x", padx=10, pady=10, ipady=0)
         # 확인 체크박스
         self.chkVar = IntVar()
         self.chkBox = Checkbutton(self.frame, 
@@ -296,15 +302,10 @@ class CheckDigitOption: # 문자열 위치 확인 여부
     def setIdx(self, idx):
         self.startIdxVar.set(idx)
         self.chkIdx()
-            
-"""메인 메서드 정의"""
-
-        
         
 # 설정 저장 및 실행 (SorFi_run에 메서드 작성)
 class RunFrame: 
     def __init__(self):
-        
         run_frame = Frame(root)
         run_frame.pack(side="bottom", fill="both", padx=10, pady=10, expand=True)
 
@@ -325,10 +326,13 @@ class RunFrame:
 
         # 되돌리기
         run_frame_L3 = Frame(run_frame_L) # 되돌리기 프레임
-        run_frame_L3.pack(side="left", fill="both", expand=True)
+        run_frame_L3.pack(side="right", fill="both")
         btn_revert = Button(run_frame_L3, text="되돌리기", width=10, font=customFont1,
                             command=self.undo)
         btn_revert.pack(side="bottom", padx=5, pady=10, fill="both")
+        
+        # txt_revert = Label(run_frame_L3, text="※ 되돌리기는 실행 직후에만 가능합니다!!")
+        # txt_revert.pack(side="bottom")
 
 
         # 실행버튼 프레임
@@ -343,51 +347,63 @@ class RunFrame:
         
         
         self.userPath = ""
-        self.folders = list()
+        self.newFolders = list()
         self.fileList = list()
         self.basefiles = list()
 
     def run(self):
-        self.userPath = sourceFrame.sourcePath.get()
+        try:
+            startIdx = int(chkDigit.startIdxEntry.get().strip())
+        except:
+            msgbox.showwarning("잘못된 입력", "\"문자열 위치 확인\" 부분의의 \"시작위치\"에 올바른 값을 입력해주세요.\n(양의 정수만 입력 가능)")
+        self.userPath = sourceFrame.sourcePath.get() + "/"
+        self.basefolders = [folder for folder in os.listdir(self.userPath) 
+                         if os.path.isdir(self.userPath+folder)]
         
         # 이동할 파일
-        temp_file = os.listdir(self.userPath)
-        self.fileList = [file for file in temp_file if os.path.isfile(self.userPath+"\\"+file)]
+        self.fileList = [file for file in os.listdir(self.userPath) 
+                         if os.path.isfile(self.userPath+file)]
         self.basefiles = self.fileList
         
         # 리스트박스 값 가져오기
-        self.folders = list(folderNameFrame.folderList.get(0, END))
+        self.newFolders = list(folderNameFrame.folderList.get(0, END))
         
         # 폴더 생성
-        for folderName in self.folders:
+        for folder in self.newFolders:
             # 생성하려는 폴더명이 기존에 없을 경우 폴더 생성
-            if not os.path.exists(self.userPath + "\\" + folderName): 
-                os.makedirs(self.userPath + "\\" + folderName)
-            
-        # # 옵션에 따라 case 분리
-        # # 문자열 위치 확인
-        # if chkDigit.chkVar.get()==1:
-        #     pass
-        # # 문자열 위치 확인 안함
-        # elif chkDigit.chkVar.get()==0:
-        #     pass
-        #     # 파일명에 해당 폴더명과 동일한 문자열이 존재할 경우 리스트에 추가
-        #     li = [x for x in fileList if folderName in x]
+            if not os.path.exists(self.userPath + folder): 
+                os.makedirs(self.userPath + folder)
+                
+            # 문자열 위치 확인 여부
+            lowFolder = "".join(folder).lower().strip("_") # 대소문자 관계없이 정리하기 위해서 검사용 임시시 폴더명 변수 생성성
 
-        #     for file in li:
-        #         current_path = (userPath + file) # 리스트의 첫번째 파일 현재 주소
-        #         new_path = (userPath + folderName + '/' + file) # 이동할 파일의 주소
-        #         shutil.move(current_path, new_path)
+            if chkDigit.chkVar.get()==1:
+                for file in self.fileList:
+                    if lowFolder in file[startIdx-1:startIdx + len(folder):].lower(): # 길이는 folder로 확인, 문자는 정리된 lowFolder로 비교
+                        shutil.move(self.userPath+file, self.userPath+folder+"/"+file)
+            elif chkDigit.chkVar.get()==0:
+                for file in self.fileList:
+                    if lowFolder in file.lower():
+                        shutil.move(self.userPath+file, self.userPath+folder+"/"+file)
+        
+        # 실행 완료 메시지 출력
+        msgbox.showinfo("완료", "정리가 완료되었습니다")
 
-        #     fileList = [x for x in fileList if x not in li] # 이동한 파일은 리스트에서 제외
 
     def undo(self):
-        print("undo!")
-        print(self.basefiles)
-        pass
+        for folder in self.newFolders:
+            inner_file_list = os.listdir(self.userPath + folder)
+            for file in inner_file_list:
+                if file in self.basefiles: # 프로그램 실행시 관여한 파일만 되돌리기기
+                    shutil.move(self.userPath + folder + "/" + file, self.userPath + file)
+            if folder not in self.basefolders: # 기존에도 이미 이던 폴더는 제외하고고
+                try:
+                    os.removedirs(self.userPath + folder) # 빈 폴더 삭제
+                except:
+                    print(f"\"{folder}\" 폴더 삭제 싪패")
             
     def getSettings(self):
-        # json 파일 불러와서 각각의 변수에 set() 진행
+# json 파일 불러와서 각각의 변수에 set() 진행
         settingFile = filedialog.askopenfilename(initialdir = sourceFrame.sourcePath.get(), title="설정 불러오기",
                                         filetypes=(("JSON", "*.json"), ("all files", "*.*")))
         # print(settingFile)
@@ -429,12 +445,9 @@ sourceFrame = SourceFrame()
 # 옵션 프레임 생성
 optFrame = OptionFrame(1) 
 folderNameFrame = FolderNameFrame(optFrame.optVar.get())
-runFrame = RunFrame()
 # 문자열 자리수 확인 옵션
 chkDigit = CheckDigitOption() 
-
-
-
+runFrame = RunFrame()
 
 
 root.mainloop()

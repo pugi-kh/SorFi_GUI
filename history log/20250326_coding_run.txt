@@ -16,5 +16,5 @@
 
 
 [미완료 작업]
-- 문자열 위치 확인 체크했을 때, 우측의 Label과 Entry 활성화하는 것
-    -> config(state="normal") 활용하여 리팩토링
+- 문자열 위치 확인 체크했을 때
+    -> 우측의 Label과 Entry 활성화 / config(state="normal") 활용하여 리팩토링
