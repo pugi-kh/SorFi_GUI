@@ -1,1 +1,1 @@
-python SorFi_main.py
+python ./src/SorFi_main.py
