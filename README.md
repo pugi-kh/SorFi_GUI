@@ -2,7 +2,7 @@
 
 파일 정리 GUI 프로그램.
 
-![SorFi Screenshot](resource/screenshot/스크린샷%202025-10-03%20031817.png)
+![SorFi Screenshot](resource/screenshot/스크린샷%202025-10-03%20032248.png)
 
 ## 설치
 
