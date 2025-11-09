@@ -12,7 +12,7 @@ import shutil
 root = Tk() # root.mainloop() 사이에 작성
 
 root.title("SorFi_Files Assorting Program")
-root.iconbitmap('./resource/icon/SorFi_icon_2.ico')
+root.iconbitmap('../resource/icon/SorFi_icon_2.ico')
 appWidth = 480
 appHeight = 640
 widthPosition = (root.winfo_screenwidth()/2) - (appWidth/2)
@@ -210,7 +210,7 @@ class CheckDigitExample: # 파일명 입력하여 문자열 자리수 확인
     def __init__(self):
         self.window = Tk()
         self.window.title("SorFi_Check Digit")
-        self.window.iconbitmap('./resource/icon/SorFi_icon_2.ico')
+        self.window.iconbitmap('../resource/icon/SorFi_icon_2.ico')
         self.appWidth = 640
         self.appHeight = 180
         self.widthPosition = (self.window.winfo_screenwidth()/2) - (self.appWidth/2)
