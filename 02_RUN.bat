@@ -1,1 +1,0 @@
-python ./src/SorFi_main.py
